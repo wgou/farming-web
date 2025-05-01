@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, Suspense } from "react"
 import { useWallet } from "@/contexts/wallet-context"
 import { useReferral } from "@/contexts/referral-context"
 import { ChevronRight } from "lucide-react"
@@ -16,7 +16,8 @@ import { useSearchParams } from 'next/navigation'
 import { useMessage } from "./components/root-layout"
 import { ethers } from "ethers"
 
-export default function Home() {
+// Create a separate client component for the main content
+function MainContent() {
   const { isConnected, address } = useWallet()
   const { referralCode } = useReferral()
   const [openFaq, setOpenFaq] = useState<string | null>(null)
@@ -291,17 +292,10 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 pb-0 mobile-scrollable">
-      {/* Hero Section */}
+    <>
       <HeroSection onStartNow={handleStartNow} hideStartNow={hideStartNow} />
-
-      {/* Stats Section */}
       <StatsSection initialStats={stats} />
-
-      {/* Latest Yield Section */}
       <LatestRewards />
-
-      {/* Partners Section */}
       <section className="py-8 border-t border-[rgba(var(--dark-border),0.6)]">
         <h2 className="text-xl sm:text-2xl font-medium mb-6 text-center glow-text">Partners</h2>
 
@@ -318,7 +312,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FAQ Section - Added proper bottom spacing for mobile */}
       <section className="py-8 pt-8 border-t border-[rgba(var(--dark-border),0.6)]">
         <h2 className="text-xl sm:text-2xl font-medium mb-6 text-center glow-text">FAQ</h2>
 
@@ -345,9 +338,17 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Add spacer at the bottom to ensure content is not hidden behind mobile nav */}
         <div className="mobile-tab-nav-spacer"></div>
       </section>
-    </div>
+    </>
+  )
+}
+
+// Main page component
+export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <MainContent />
+    </Suspense>
   )
 }
